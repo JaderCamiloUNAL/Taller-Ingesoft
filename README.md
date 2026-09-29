@@ -1,5 +1,5 @@
 # Taller-Ingesoft
-Solución al taller numero uno (1) de la materia de ingeniera de software 2 con el lenguaje de Java
+Solución al taller numero uno (1) de la materia de ingeniera de software 2 con el lenguaje de Java realizado por Jader Camilo Rodriguez Arboleda
 
 # Ejercicio S — Single Responsibility Principle
   “Una clase debe tener una, y solo una, razón para cambiar.”
