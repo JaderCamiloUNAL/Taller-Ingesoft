@@ -301,9 +301,12 @@ Se elimina la herencia incorrecta, el ArchivoSoloLectura ya no es un sibtipo de 
 “Los clientes no deben ser forzados a depender de métodos que no usan.”
 
 - Si alguien llama ***impresoraBasica.escanear(çontrato")***, ¿qué pasa? ¿Se entera de que no funcionó?
+    - No pasa nada (el método está vacío). El programa no avisa de ningún error, el cliente cree que la operacion se realizó, pero en realidad no hizo nada.
 - Si se agrega un método ***enviarPorCorreo*** a la interfaz, ¿cuántas clases hay que modi- ficar?
+    - Se tienen que modificar todas las clases que implimenten *Dispositivo*
 
 ## Problema identificado.
+La interfaz *Dispositivo* es demasiado robusta, obliga a todas las clases que la implementan a definir metodos que quizas no utilicen.
 
 ## Código original.
 
@@ -333,12 +336,66 @@ public class ImpresoraBasica implements Dispositivo {
 ## Código corregido Su solución.
 
 ```java
+interface Imprimible {
+    void imprimir(String documento);
+}
 
+interface Escaneable {
+    void escanear(String documento);
+}
+
+interface Enviable {
+    void enviarFax(String documento);
+}
+
+interface Fotocopiable {
+    void fotocopiar(String documento);
+}
+
+// Impresora básica: solo imprime
+class ImpresoraBasica implements Imprimible {
+    public void imprimir(String d) {
+        System.out.println("Imprimiendo " + d);
+    }
+}
+
+// Impresora multifuncional: implementa varias interfaces
+class ImpresoraMultifuncional implements Imprimible, Escaneable, Enviable, Fotocopiable {
+    public void imprimir(String d) { System.out.println("Imprimiendo " + d); }
+    public void escanear(String d) { System.out.println("Escaneando " + d); }
+    public void enviarFax(String d) { System.out.println("Enviando fax " + d); }
+    public void fotocopiar(String d) { System.out.println("Fotocopiando " + d); }
+}
+
+// Reto extra: un escáner que solo escanea
+class Escaner implements Escaneable {
+    public void escanear(String d) {
+        System.out.println("Escaneando " + d);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        ImpresoraBasica basica = new ImpresoraBasica();
+        basica.imprimir("Contrato");
+
+        ImpresoraMultifuncional multi = new ImpresoraMultifuncional();
+        multi.imprimir("Informe");
+        multi.escanear("Informe");
+        multi.enviarFax("Informe");
+        multi.fotocopiar("Informe");
+
+        Escaner escaner = new Escaner();
+        escaner.escanear("Documento");
+    }
+}
 ```
 
 ## Justificación Por qué es mejor.
+Se divide la interfaz grande en varias pequeñas y especificas, de esta manera cada clase solo implementa los metodos que realmente necesita.
 
 ## Evidencia
+<img width="344" height="174" alt="image" src="https://github.com/user-attachments/assets/a2531f30-66de-416a-85e0-1445bfbb1a32" />
 
 --------------------------------------
 
