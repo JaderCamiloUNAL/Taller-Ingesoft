@@ -105,17 +105,18 @@ En la correción del codigo cada clase tiene una sola responsabilidad, La clase 
 ## Evidencia
 <img width="489" height="162" alt="image" src="https://github.com/user-attachments/assets/7cbf44a8-039d-4dac-b156-20295da9d0df" />
 
-
 --------------------------------------
 
 # Ejercicio O — Open/Closed Principle
 “Las entidades de software deben estar abiertas para extensión, pero cerradas para modificación.”
 
 - La empresa quiere agregar el envío ***MISMO_DIA.*** ¿Qué tienen que modificar?
+    - En el código original hay que modificar la clase CalculadoraEnvio (agregar otro else if).
 - ¿Qué pasa con esta clase si en un año hay 15 tipos de envío?
+    - El método calcular se vuelve muy largo, difícil de leer, propenso a errores y complicado de mantener. Cada nuevo tipo       obliga a tocar código ya existente.
   
 ## Problema identificado.
-
+Cada vez que se necesita agregar un nuevo metodo de envio hay que modificar el metodo calcular que se encuentra en la clase de calcular envio (agregar otro ***else if***) ademas la clase no esta abierta para modificacion ni para extención.
 ## Código original.
 
 ```java
@@ -135,10 +136,57 @@ public class CalculadoraEnvio {
 ```
 
 ## Código corregido Su solución.
+``` Java
+interface TipoEnvio {
+    double calcular(double peso);
+}
 
+class EnvioNormal implements TipoEnvio {
+    public double calcular(double peso) {
+        return peso * 2000;
+    }
+}
+
+class EnvioExpress implements TipoEnvio {
+    public double calcular(double peso) {
+        return peso * 5000 + 10000;
+    }
+}
+
+class EnvioInternacional implements TipoEnvio {
+    public double calcular(double peso) {
+        return peso * 15000 + 50000;
+    }
+}
+
+class EnvioMismoDia implements TipoEnvio {
+    public double calcular(double peso) {
+        return peso * 8000 + 20000;
+    }
+}
+
+class CalculadoraEnvio {
+    public double calcular(TipoEnvio tipo, double peso) {
+        return tipo.calcular(peso);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        CalculadoraEnvio calc = new CalculadoraEnvio();
+
+        System.out.println("Envio normal: " + calc.calcular(new EnvioNormal(), 2.5));
+        System.out.println("Envio express: " +calc.calcular(new EnvioExpress(), 2.5));
+        System.out.println("Envio internacional: " +calc.calcular(new EnvioInternacional(), 2.5));
+        System.out.println("Envio el mismo dia: " +calc.calcular(new EnvioMismoDia(), 2.5));
+    }
+}
+```
 ## Justificación Por qué es mejor.
+Ahora, para agregar un nuevo tipo solo se crea una clase nueva. No hay que modificar CalculadoraEnvio ni las clases que ya existían.
 
 ## Evidencia
+<img width="337" height="150" alt="image" src="https://github.com/user-attachments/assets/e93e0e8e-f328-40d1-b024-e6ce1f5cb4d1" />
 
 --------------------------------------
 
@@ -181,6 +229,9 @@ public class Editor {
 
 ## Código corregido Su solución.
 
+``` java
+```
+
 ## Justificación Por qué es mejor.
 
 ## Evidencia
@@ -222,6 +273,9 @@ public class ImpresoraBasica implements Dispositivo {
 
 ## Código corregido Su solución.
 
+```java
+```
+
 ## Justificación Por qué es mejor.
 
 ## Evidencia
@@ -260,6 +314,10 @@ public class ServicioUsuarios {
 ```
 
 ## Código corregido Su solución.
+
+```java
+
+```
 
 ## Justificación Por qué es mejor.
 
