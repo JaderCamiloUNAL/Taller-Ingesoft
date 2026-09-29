@@ -195,10 +195,15 @@ Ahora, para agregar un nuevo tipo solo se crea una clase nueva. No hay que modif
 tipo S sin alterar el correcto funcionamiento del programa.”
 
 - Ejecuten ***agregarFirma*** con una lista que contenga un Archivo y un ArchivoSoloLectura. ¿Qué pasa?
+    - Se lanza una UnsupportedOperationException cuando el editor intenta escribir en el ArchivoSoloLectura. El programa se       rompe.
 - Alguien propone agregar ***if (!(a instanceof ArchivoSoloLectura))*** dentro del ciclo. ¿Por qué eso es un parche y no una solución?
+    - Porque está comprobando el tipo concreto en tiempo de ejecución. Eso indica que la jerarquía de herencia está mal diseñada. Cada vez que aparezca un nuevo tipo de archivo especial habría que agregar más if, lo cual es frágil y viola el espíritu de la orientación a objetos.
 - ¿Un archivo de solo lectura **realmente** “es un” archivo que se puede escribir?
+    - No. Por eso no debería heredar de Archivo si Archivo promete la operación de escritura.
 
 ## Problema identificado.
+El ArchivoSoloLectura hereda de Archivo no cumple lo esperado del método escribir: lanza una excepción en lugar de escribir.
+Según el principio de Liskov, cualquier subtipo de Archivo debería poder usarse donde se espera un Archivo sin alterar el comportamiento del programa.
 
 ## Código original.
 
@@ -230,11 +235,65 @@ public class Editor {
 ## Código corregido Su solución.
 
 ``` java
+interface ArchivoLegible {
+    String leer();
+}
+
+class Archivo implements ArchivoLegible {
+    protected String contenido = "";
+
+    public String leer() {
+        return contenido;
+    }
+
+    public void escribir(String texto) {
+        contenido += texto;
+    }
+}
+
+class ArchivoSoloLectura implements ArchivoLegible {
+    private String contenido;
+
+    public ArchivoSoloLectura(String contenido) {
+        this.contenido = contenido;
+    }
+
+    public String leer() {
+        return contenido;
+    }
+}
+
+class Editor {
+    public void agregarFirma(java.util.List<Archivo> archivos) {
+        for (Archivo a : archivos) {
+            a.escribir("\n-- Firmado por el sistema");
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Archivo archivoNormal = new Archivo();
+        archivoNormal.escribir("Contenido original");
+
+        ArchivoSoloLectura archivoSoloLectura = new ArchivoSoloLectura("Solo lectura");
+
+        Editor editor = new Editor();
+        java.util.List<Archivo> lista = new java.util.ArrayList<>();
+        lista.add(archivoNormal);
+        editor.agregarFirma(lista);
+
+        System.out.println("Archivo normal: " + archivoNormal.leer());
+        System.out.println("Archivo solo lectura: " + archivoSoloLectura.leer());
+    }
+}
 ```
 
 ## Justificación Por qué es mejor.
+Se elimina la herencia incorrecta, el ArchivoSoloLectura ya no es un sibtipo de Archio, porque no puede complir lo que se espera de escritura. Ahora solo comparten la capacidad de lectura
 
 ## Evidencia
+<img width="340" height="118" alt="image" src="https://github.com/user-attachments/assets/edae14c8-48f2-40ab-850a-4b1c5d994cd4" />
 
 --------------------------------------
 
@@ -274,6 +333,7 @@ public class ImpresoraBasica implements Dispositivo {
 ## Código corregido Su solución.
 
 ```java
+
 ```
 
 ## Justificación Por qué es mejor.
