@@ -5,11 +5,13 @@ Solución al taller numero uno (1) de la materia de ingeniera de software 2 con 
   “Una clase debe tener una, y solo una, razón para cambiar.”
 
   - Describan qué hace esta clase en una sola frase. ¿Cuántas veces usaron la palabra “y”?
+      - La clase estudiante calcula el promedio, guarda el archivo y se lo envia al acudiente
   - Si el colegio cambia el formato del boletín, ¿qué clase tocan? ¿Y si cambian el archivo
+    
     por una base de datos?
 
 ## Problema identificado.
-
+La clase estudiante tiene multiples responsabilidades como gestionar los datos del estudiante y calcular el promedio ademas, tambien guarda el archivo, imprime el boletin y envia el correo al acudiente del estudiante.
 ## Código original.
   ```java
 public class Estudiante {
@@ -43,10 +45,66 @@ public class Estudiante {
 }
   ```
 ## Código corregido Su solución.
+ ```java
+class Estudiante {
+    private String nombre;
+    private double[] notas;
+
+    public Estudiante(String nombre, double[] notas) {
+        this.nombre = nombre;
+        this.notas = notas;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public double calcularPromedio() {
+        if (notas == null || notas.length == 0) return 0.0;
+        double suma = 0;
+        for (double n : notas) suma += n;
+        return suma / notas.length;
+    }
+}
+
+class RepositorioEstudiante {
+    public void guardar(Estudiante estudiante) {
+        System.out.println("Guardando " + estudiante.getNombre() + " en estudiantes.txt...");
+    }
+}
+
+class ImpresorBoletin {
+    public void imprimir(Estudiante estudiante) {
+        System.out.println("=== BOLETÍN ===");
+        System.out.println("Nombre: " + estudiante.getNombre());
+        System.out.println("Promedio: " + estudiante.calcularPromedio());
+    }
+}
+
+class NotificadorCorreo {
+    public void enviar(Estudiante estudiante) {
+        System.out.println("Enviando boletín por correo al acudiente de " + estudiante.getNombre());
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Estudiante estudiante = new Estudiante("Ana Pérez", new double[]{4.5, 3.8, 4.2, 5.0});
+
+        // Cada clase tiene una sola responsabilidad
+        new RepositorioEstudiante().guardar(estudiante);
+        new ImpresorBoletin().imprimir(estudiante);
+        new NotificadorCorreo().enviar(estudiante);
+    }
+}
+ ```
+
 
 ## Justificación Por qué es mejor.
-
+En la correción del codigo cada clase tiene una sola responsabilidad, La clase estudiante se encarga de los datos del estudiante y calcular su promedio, la clase impresor boletin se encarga de presentarlo y la clase Modificar correo es la encargada de enviar la notificación
 ## Evidencia
+<img width="489" height="162" alt="image" src="https://github.com/user-attachments/assets/7cbf44a8-039d-4dac-b156-20295da9d0df" />
+
 
 --------------------------------------
 
