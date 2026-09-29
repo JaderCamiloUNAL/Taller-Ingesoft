@@ -5,10 +5,10 @@ Solución al taller numero uno (1) de la materia de ingeniera de software 2 con 
   “Una clase debe tener una, y solo una, razón para cambiar.”
 
   - Describan qué hace esta clase en una sola frase. ¿Cuántas veces usaron la palabra “y”?
-      - La clase estudiante calcula el promedio, guarda el archivo y se lo envia al acudiente
-  - Si el colegio cambia el formato del boletín, ¿qué clase tocan? ¿Y si cambian el archivo
-    
-    por una base de datos?
+      - La clase Estudiante calcula el promedio del estudiante, guarda sus datos en un archivo, imprime el boletín y envía           un correo al acudiente.
+  - Si el colegio cambia el formato del boletín, ¿qué clase tocan? ¿Y si cambian el archivo por una base de datos?
+      - Si cambian el formato del boletín → tocan la clase Estudiante (método imprimirBoletin).
+      - Si cambian el archivo por una base de datos → también tocan la clase Estudiante (método guardarEnArchivo).
 
 ## Problema identificado.
 La clase estudiante tiene multiples responsabilidades como gestionar los datos del estudiante y calcular el promedio ademas, tambien guarda el archivo, imprime el boletin y envia el correo al acudiente del estudiante.
