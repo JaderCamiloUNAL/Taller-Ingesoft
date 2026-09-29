@@ -404,10 +404,16 @@ Se divide la interfaz grande en varias pequeñas y especificas, de esta manera c
 depender de abstracciones.”
 
 - La empresa decide migrar a MongoDB. ¿Qué tienen que modificar en ServicioUsuarios?
+    - Si se decide migrar a MongoDB se tendria que modificar toda la logica del codigo debido a que en este caso un cambio de infraestrutura del codigo obliga a  tocar su logica, en este ejemplo en especifico hay que cambiar la clase ***MySQLDatabase*** por ***MongoDatabase*** dentro de ServicioUsuarios.
+      
 - ¿Cómo harían una prueba de registrar sin conectarse a una base de datos real?
+    - Creando una implementación falsa o en memoria (BaseDatosEnMemoria) y pasándola al constructor de ServicioUsuarios. Así se prueba la lógica sin depender de MySQL.
+    - 
 - ¿Quién decide qué base de datos se usa: ServicioUsuarios o alguien de afuera?
+    - En el código original decide ServicioUsuarios (está acoplado a MySQL).
 
 ## Problema identificado.
+*ServicioUsuarios* (modulo de alto nivel) depende directamente de MySQLDatabase (modulo de bajo nivel) por lo tanto en caso de que se requiera cambiar de base de datos hay que modificar ServicioUsuarios ademas es dificil hacer pruebas sin usar una base de datos real.
 
 ## Código original.
 
@@ -433,10 +439,81 @@ public class ServicioUsuarios {
 ## Código corregido Su solución.
 
 ```java
+interface BaseDatos {
+    void guardar(String dato);
+}
 
+// Implementación concreta: MySQL
+class MySQLDatabase implements BaseDatos {
+    public void guardar(String dato) {
+        System.out.println("[MySQL] Guardando: " + dato);
+    }
+}
+
+// Implementación concreta: MongoDB (ejemplo)
+class MongoDatabase implements BaseDatos {
+    public void guardar(String dato) {
+        System.out.println("[MongoDB] Guardando: " + dato);
+    }
+}
+
+// Reto extra: base de datos en memoria
+class BaseDatosEnMemoria implements BaseDatos {
+    private java.util.List<String> datos = new java.util.ArrayList<>();
+
+    public void guardar(String dato) {
+        datos.add(dato);
+        System.out.println("[Memoria] Guardado: " + dato);
+    }
+
+    public java.util.List<String> getDatos() {
+        return datos;
+    }
+}
+
+// Módulo de alto nivel: depende de la abstracción
+class ServicioUsuarios {
+    private BaseDatos db;
+    public ServicioUsuarios(BaseDatos db) {
+        this.db = db;
+    }
+
+    public void registrar(String nombreUsuario) {
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            throw new IllegalArgumentException("Nombre inválido");
+        }
+        db.guardar(nombreUsuario);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BaseDatos db = new MySQLDatabase();
+        // BaseDatos db = new MongoDatabase();
+        // BaseDatos db = new BaseDatosEnMemoria();
+
+        ServicioUsuarios servicio = new ServicioUsuarios(db);
+        servicio.registrar("ana.perez");
+
+        // Prueba con memoria (sin tocar MySQL)
+        BaseDatosEnMemoria memoria = new BaseDatosEnMemoria();
+        ServicioUsuarios servicioPrueba = new ServicioUsuarios(memoria);
+        servicioPrueba.registrar("usuario.prueba");
+        System.out.println("Datos en memoria: " + memoria.getDatos());
+    }
+}
 ```
 
 ## Justificación Por qué es mejor.
-
+Ahora se puede modificar la Base de datos sin necesidad de cambiar *ServicioUsuarios* y afectar la estructura del codigo
 ## Evidencia
+
+### MySQL
+<img width="364" height="132" alt="image" src="https://github.com/user-attachments/assets/e7a8729f-85f4-453e-9b8c-c4a147d07e4f" />
+
+### MongoDataBase
+<img width="372" height="125" alt="image" src="https://github.com/user-attachments/assets/13e7a8e2-2f04-44ab-a76b-e180d619aec9" />
+
+### Memoria
+<img width="333" height="119" alt="image" src="https://github.com/user-attachments/assets/443d48cf-34b0-4e28-ba74-c80640aaa52a" />
 
